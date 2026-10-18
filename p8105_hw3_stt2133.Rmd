@@ -13,6 +13,24 @@ knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 library(tidyverse)
 ```
 
+```{r settings, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 9,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
 ## Problem 1: NY NOAA
 
 ### Load `ny_noaa` Dataset
@@ -46,3 +64,30 @@ snow_freq_df = noaa |>
 ```
 
 For snowfall, the most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 1), snow)`` mm occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 1), n_obs)` observations. This is due to the fact that it does not snow on most days of the year and usually only during certain months of the year. The second most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 2), snow)`` occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 2), n_obs)` observations. This is due to the fact that some weather stations only recorded precipitation data.
+
+### Average `tmax` Plot
+
+```{r}
+noaa |>
+  filter(month == "01" | month == "07") |>
+  group_by(id, month, year) |>
+  summarize(mean_tmax = mean(tmax, na.rm=TRUE)) |>
+  mutate(
+    month = case_match(month, 
+                      "01" ~ "January", 
+                      "07" ~ "July")
+    ) |>
+  ggplot(aes(x = year, y = mean_tmax)) +
+  geom_point(alpha = 0.3) +
+  facet_grid(month ~ .) +
+  labs(
+    title = "Average Maximum Temperature in January and July",
+    x = "Year",
+    y = "Average Maximum Temperature",
+    caption = "Data from the ny_noaa dataset") +
+  scale_x_discrete(
+    breaks = c(1982, 1984, 1986, 1988, 1990, 1992, 1994, 1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010), 
+    labels = c("1982", "1984", "1986", "1988", "1990", "1992", "1994", "1996", "1998", "2000", "2002", "2004", "2006", "2008", "2010"))
+```
+
+Visually inspecting the maximum temperature plot indicates that January is generally colder with lower `mean_tmax` temperatures and July is warmer with higher `mean_tmax` temperatures. There are noticeable outliers with one weather station reporting on average a cold July in 1988 of roughly 14 degrees Celcius `mean_tmax`, as well as one weather station reporting a particularly cold January in 1982 on average of roughly -4 degrees Celsius `mean_tmax`.
