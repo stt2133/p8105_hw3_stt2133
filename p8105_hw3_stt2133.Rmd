@@ -1,7 +1,7 @@
 ---
 title: "Homework 3 (p8105)"
 author: "Sanyu Takirambudde (stt2133)"
-date: 2026-10-18
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
 output: github_document
 ---
 
@@ -24,5 +24,25 @@ data("ny_noaa")
 
 ### Data Description
 
-The `ny_noaa` dataset provides information on weather data in New York. Each observation represents each day from `r min(pull(ny_noaa, date))` to `r max(pull(ny_noaa, date))`, resulting in `r nrow(ny_noaa)` total observations. There are `r ncol(ny_noaa)` variables in the dataset, including the weather station ID (`id`), daily precipitation (`prcp`), daily snowfall (`snow`), daily snow depth (`snwd`), and maximum and minimum daily temperature (`tmax`, `tmin`). Among all observation in the dataset, there is `r ((sum(is.na(pull(ny_noaa, id))))/(nrow(ny_noaa)))*100`% and `r ((sum(is.na(pull(ny_noaa, date))))/(nrow(ny_noaa)))*100`% missing data in regards to weather station ID (`id`) and date (`date`) of observation, respectively. However, there is more extensive missing data in regard to the other weather-related values. Specifically, among all observations in the `ny_noaa` dataset `r round(((sum(is.na(pull(ny_noaa, prcp))))/(nrow(ny_noaa)))*100, 2)`% of precipitation (`prcp`) data is missing, `r round(((sum(is.na(pull(ny_noaa, snow))))/(nrow(ny_noaa)))*100, 2)`% of snowfall (`snow`) data is missing, `r round(((sum(is.na(pull(ny_noaa, snwd))))/(nrow(ny_noaa)))*100, 2)`% of snow depth (`snwd`) data is missing, `r round(((sum(is.na(pull(ny_noaa, tmax))))/(nrow(ny_noaa)))*100, 2)`% of maximum temperature (`tmax`) data is missing, and `r round(((sum(is.na(pull(ny_noaa, tmin))))/(nrow(ny_noaa)))*100, 2)`% of minimum temperature (`tmin`) data is missing.
+The `ny_noaa` dataset provides daily weather data from `r min(pull(ny_noaa, date))` to `r max(pull(ny_noaa, date))` in different locations in New York, resulting in `r nrow(ny_noaa)` total observations. There are `r ncol(ny_noaa)` variables in the dataset, including the weather station ID (`id`), daily precipitation (`prcp`), daily snowfall (`snow`), daily snow depth (`snwd`), and maximum and minimum daily temperature (`tmax`, `tmin`). Among all observation in the dataset, there is `r ((sum(is.na(pull(ny_noaa, id))))/(nrow(ny_noaa)))*100`% and `r ((sum(is.na(pull(ny_noaa, date))))/(nrow(ny_noaa)))*100`% missing data in regards to weather station ID (`id`) and date (`date`) of observation, respectively. However, there is more extensive missing data in regard to the other weather-related values. Specifically, among all observations in the `ny_noaa` dataset `r round(((sum(is.na(pull(ny_noaa, prcp))))/(nrow(ny_noaa)))*100, 2)`% of precipitation (`prcp`) data is missing, `r round(((sum(is.na(pull(ny_noaa, snow))))/(nrow(ny_noaa)))*100, 2)`% of snowfall (`snow`) data is missing, `r round(((sum(is.na(pull(ny_noaa, snwd))))/(nrow(ny_noaa)))*100, 2)`% of snow depth (`snwd`) data is missing, `r round(((sum(is.na(pull(ny_noaa, tmax))))/(nrow(ny_noaa)))*100, 2)`% of maximum temperature (`tmax`) data is missing, and `r round(((sum(is.na(pull(ny_noaa, tmin))))/(nrow(ny_noaa)))*100, 2)`% of minimum temperature (`tmin`) data is missing.
 
+### Data Cleaning
+
+```{r}
+noaa = ny_noaa |>
+  separate(date, into = c("year", "month", "day"), "-") |>
+  mutate(
+    prcp = as.numeric(prcp)/10,
+    tmax = as.numeric(tmax)/10,
+    tmin = as.numeric(tmin)/10
+    )
+```
+
+```{r}
+snow_freq_df = noaa |>
+  group_by(snow) |>
+  summarise(n_obs = n()) |>
+  mutate(snow_freq_rank = min_rank(desc(n_obs)))
+```
+
+For snowfall, the most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 1), snow)`` mm occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 1), n_obs)` observations. This is due to the fact that it does not snow on most days of the year and usually only during certain months of the year. The second most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 2), snow)`` occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 2), n_obs)` observations. This is due to the fact that some weather stations only recorded precipitation data.
