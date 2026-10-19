@@ -192,16 +192,15 @@ mims = left_join(mims_demos, mims_accel, by = "seqn") |>
 #### 2.2.1.1. Table
 
 ```{r mims-freq-table}
-mims_sex_edu = mims |> 
+mims |> 
   group_by(education, sex) |>
-  summarise(count = n())
-
-knitr::kable(mims_sex_edu, digits = 2)
+  summarise(count = n()) |>
+  knitr::kable(digits = 2)
 ```
 
 #### 2.2.1.2. Comments
 
-Based on the `mims_sex_edu` table, the combination of `more than high school` and `female` represents the most highest frequency in the `mims` dataset with `84960` observations, closely followed by the combination of `more than high school` and `male` with `80640` observations. The least frequent combinations of `education` and `sex` was `high school equivalent` and `female` with 33120 observations and `less than high school` and `male` with 38880 observations.
+Based on the frequency table, the combination of `more than high school` and `female` represents the most highest frequency in the `mims` dataset with `84960` observations, closely followed by the combination of `more than high school` and `male` with `80640` observations. The least frequent combinations of `education` and `sex` was `high school equivalent` and `female` with 33120 observations and `less than high school` and `male` with 38880 observations.
 
 ### 2.2.2. Distribution of `age` by `sex` & `education`
 
@@ -274,9 +273,7 @@ Based on the smooth trends in the **24-hr Activity Plot**, we can appreciate sev
 
 # Problem 3: Citi Bike
 
-## 3.1. `citi` Data Wrangling
-
-### 3.1.1. Import, Clean, Tidy, and Merge `citi` Data
+## 3.1. Import, Clean, Tidy, and Merge `citi` Data
 ```{r citi-wrangle}
 citi0120 = 
   read_csv("data/Jan 2020 Citi.csv", na = c("NA")) |>
@@ -312,35 +309,38 @@ citi =
     select(-rideable_type, -weekdays, -member_casual)
 ```
 
-### 3.1.2. `citi` Data Description
+## 3.2. `citi` Data Description
 
 `citi` contains data on rides taken on the NYC Citi Bike system in January and July of 2020 and 2024. The dataset includes information on a total of `r nrow(citi)` rides. There are `r ncol(citi)` variables in this dataset, including unique ride ID, duration of ride, names of the start and end station of the ride, type of bike used for the ride, membership status of the associated rider, and each ride's year, month and day of week.
 
-## 3.2. Frequency by `year`, `month`, & `member_status`
+## 3.3. Frequency by `year`, `month`, & `member_status`
+
+### 3.3.1. Tables
+```{r}
+citi |>
+  group_by(year, month, member_status) |>
+  summarize(rides = n()) |>
+  knitr::kable(digits = 2)
+```
+
+### 3.3.2. Comments
+Based on the frequency table, across the years and months observed, Citi Bike members took more rides than casual riders. The `member_status` category that had the combination of years and months recording the greatest frequency were also members and this occurred in `july` of `2024` with 36262 rides. Conversely, the `member_status` category that had the combination of years and months recording the lowest frequency were casual riders and this occurred in `jan` of `2020` with 984 rides. 
+
+### 3.4. Frequency among Popular Stations in July 2024
 
 
-### 3.2.1. Tables
-
-
-### 3.2.2. Comments
-
-
-### 3.3. Frequency among Popular Stations in July 2024
-
-
-### 3.4. Effects of `week_day`, `month`, & `year` on `median_duration`
-
-
-### 3.4.1. Plot
-
-
-### 3.4.2. Comments
-
-
-### 3.5. Impact of `month`, `member_status`, & `bike_type` on `duration` Distribution
-
+### 3.5. Effects of `week_day`, `month`, & `year` on `median_duration`
 
 ### 3.5.1. Plot
 
 
 ### 3.5.2. Comments
+
+
+### 3.6. Impact of `month`, `member_status`, & `bike_type` on `duration` Distribution
+
+
+### 3.6.1. Plot
+
+
+### 3.6.2. Comments
