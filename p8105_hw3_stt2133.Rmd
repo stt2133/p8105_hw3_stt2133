@@ -33,20 +33,20 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-## Problem 1: NY NOAA
+# Problem 1: NY NOAA
 
-### Load `ny_noaa` Dataset
+## 1.0. Load `ny_noaa` Dataset
 
 ```{r}
 library(p8105.datasets)
 data("ny_noaa")
 ```
 
-### Data Description
+## 1.1. Data Description
 
 The `ny_noaa` dataset provides daily weather data from `r min(pull(ny_noaa, date))` to `r max(pull(ny_noaa, date))` in different locations in New York, resulting in `r nrow(ny_noaa)` total observations. There are `r ncol(ny_noaa)` variables in the dataset, including the weather station ID (`id`), daily precipitation (`prcp`), daily snowfall (`snow`), daily snow depth (`snwd`), and maximum and minimum daily temperature (`tmax`, `tmin`). Among all observation in the dataset, there is `r ((sum(is.na(pull(ny_noaa, id))))/(nrow(ny_noaa)))*100`% and `r ((sum(is.na(pull(ny_noaa, date))))/(nrow(ny_noaa)))*100`% missing data in regards to weather station ID (`id`) and date (`date`) of observation, respectively. However, there is more extensive missing data in regard to the other weather-related values. Specifically, among all observations in the `ny_noaa` dataset `r round(((sum(is.na(pull(ny_noaa, prcp))))/(nrow(ny_noaa)))*100, 2)`% of precipitation (`prcp`) data is missing, `r round(((sum(is.na(pull(ny_noaa, snow))))/(nrow(ny_noaa)))*100, 2)`% of snowfall (`snow`) data is missing, `r round(((sum(is.na(pull(ny_noaa, snwd))))/(nrow(ny_noaa)))*100, 2)`% of snow depth (`snwd`) data is missing, `r round(((sum(is.na(pull(ny_noaa, tmax))))/(nrow(ny_noaa)))*100, 2)`% of maximum temperature (`tmax`) data is missing, and `r round(((sum(is.na(pull(ny_noaa, tmin))))/(nrow(ny_noaa)))*100, 2)`% of minimum temperature (`tmin`) data is missing.
 
-### Data Cleaning
+## 1.2. Data Cleaning
 
 ```{r}
 noaa = ny_noaa |>
@@ -67,7 +67,9 @@ snow_freq_df = noaa |>
 
 For snowfall, the most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 1), snow)`` mm occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 1), n_obs)` observations. This is due to the fact that it does not snow on most days of the year and usually only during certain months of the year. The second most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 2), snow)`` occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 2), n_obs)` observations. This is due to the fact that some weather stations only recorded precipitation data.
 
-### Average `tmax` Plot
+## 1.3. Average `tmax` in January and July
+
+### 1.3.1. Plot
 
 ```{r}
 noaa |>
@@ -92,10 +94,13 @@ noaa |>
     labels = c("1982", "1984", "1986", "1988", "1990", "1992", "1994", "1996", "1998", "2000", "2002", "2004", "2006", "2008", "2010"))
 ```
 
+### 1.3.1. Results
+
 Visually inspecting the maximum temperature plot indicates that January is generally colder with lower `mean_tmax` temperatures and July is warmer with higher `mean_tmax` temperatures. There are noticeable outliers with one weather station reporting on average a cold July in 1988 of roughly 14 degrees Celcius `mean_tmax`, as well as one weather station reporting a particularly cold January in 1982 on average of roughly -4 degrees Celsius `mean_tmax`.
 
-### `tmax` vs `tmin` Plot & Snowfall Distribution Plot
+## 1.4. `tmax` vs. `tmin`; Snowfall Distribution
 
+### 1.4.1. Plots
 ```{r}
 ggp_tmax_tmin = noaa |>
   ggplot(aes(x = tmin, y = tmax)) +
@@ -120,9 +125,17 @@ ggp_snow_ridge = noaa |>
 ggp_tmax_tmin + ggp_snow_ridge
 ```
 
-## Problem 2: MIMS
+### 1.4.2. Results 
 
-### Load, tidy and merge `mims_demos` and `mims_accel`
+#### 1.4.2.1. `tmax` vs `tmin`
+
+#### 1.4.2.2. Snowfall Distribution
+
+# Problem 2: MIMS
+
+## 2.1. `mims` Data Wrangling
+
+### 2.1.1. Load and tidy `mims_demos` & `mims_accel`
 
 ```{r}
 mims_demos = 
@@ -158,7 +171,7 @@ mims_accel =
     values_to = "mims")
 ```
 
-### Merge `mims_demos` and `mims_accel` into `mims` 
+### 2.1.2 Merge `mims_demos` & `mims_accel` into `mims` 
 
 ```{r}
 mims = left_join(mims_demos, mims_accel, by = "seqn") |>
@@ -167,7 +180,11 @@ mims = left_join(mims_demos, mims_accel, by = "seqn") |>
               !is.na(bmi) & !is.na(education))
 ```
 
-### N men and women by education
+## 2.2. `mims` Data Visualization 
+
+### 2.2.1. Frequency by `sex` & `education`
+
+#### 2.2.1.1. Table
 
 ```{r}
 mims_sex_edu = mims |> 
@@ -177,7 +194,13 @@ mims_sex_edu = mims |>
 knitr::kable(mims_sex_edu, digits = 2)
 ```
 
-### Age distribution for men and women by education
+#### 2.2.1.2. Comments
+
+Based on the `mims_sex_edu` table, the combination of `more than high school` and `female` represents the most highest frequency in the `mims` dataset with `84960` observations, closely followed by the combination of `more than high school` and `male` with `80640` observations. The least frequent combinations of `education` and `sex` was `high school equivalent` and `female` with 33120 observations and `less than high school` and `male` with 38880 observations.
+
+### 2.2.2. Distribution of `age` by `sex` & `education`
+
+#### 2.2.2.1. Density Plot
 
 ```{r}
 mims |> 
@@ -191,11 +214,14 @@ mims |>
     caption = "Data from nhanes dataset")
 ```
 
-Based on the `mims_sex_edu` table, the combination of `more than high school` and `female` represents the most highest frequency in the `mims` dataset with `84960` observations, closely followed by the combination of `more than high school` and `male` with `80640` observations. The least frequent combinations of `education` and `sex` was `high school equivalent` and `female` with 33120 observations and `less than high school` and `male` with 38880 observations.
+#### 2.2.2.2. Comments
 
 Based on the **Distribution of Age for Men and Women by Education** density plots, observations associated with individuals with `more than high school` education were more frequently younger than older. Among observations associated with females with a `more than high school` education, they were most frequently approximately 30 years old, while males with `more than high school` education, they were most frequently approximately 21-22 years old. Among observations associated with males with a `high school equivalent` education, the density plot indicates a bimodal distribution, with highest frequencies at opposite end of the `age` spectrum, around 21-22 years old (similarly to male observations with a `more than high school` education) and 80 years old. Among `less than high school` observations, there appears to be a contrasting distribution compared to the one previously described in regard to `more than high school` education observation. Specifically, those observations tended to associated with older individuals. Within the `less than high school` education stratum, female observations were comparatively older with modes at 68 years old and 80 years old. Conversely with that same stratum, male observations had several modes, most noticable at 43, 67, and 79 years old.
 
-### Aggregate `mims` across `min` to create `total_mims` and plot `total_mims` by `age`
+## 2.3. Total Activity
+
+### 2.3.1. Aggregate `mims` and Plot `total_mims` by `age`
+
 ```{r}
 mims |>
   group_by(seqn, sex, age, education) |>
@@ -211,9 +237,13 @@ mims |>
     caption = "Data from nhanes dataset")
 ```
 
+### 2.3.2. Comments
+
 Based on the **Scatterplot of Total Activity by Age**, we can appreciate potential differencea in total activity (`total_mims`) across the `age` range of participants, according to `sex` and `education`. It would appear that total activity generally decreases as `age` of participants increase. This trend is indicated in each of the three `education` categories. This association seems to be most noticeable within the `less than high school` stratum. In only the `less than high school` stratum of `education`, `male` participants seem to have recorded higher total activity. Conversely, in the other two strata of `education`, namely `high school equivalent` and `more than high school`, `female` participants generally recorded higher total activity. Across all `education` strata, it would appear that participants with `less than high school` recorded amongst the highest total activity, especially those that were younger in `age`.
 
-### 24-hour activity time courses for each education level by sex
+## 2.4. 24-hour Activity Time Courses
+
+### 2.4.1. `mims` Time Course Plot
 
 ```{r}
 mims |> 
@@ -233,4 +263,46 @@ mims |>
     labels = c("12 AM", "4 AM",	"8 AM",	"12 PM",	"4 PM", "8 PM",	"12 AM"))
 ```
 
+### 2.4.2. Patterns and Conclusions
+
 Based on the smooth trends in the **24-hr Activity Plot**, we can appreciate several patterns across the time period overall, according to `education` category and according to `sex`. Overall, `mims` values are lowest from 12 AM (`min` = `1`) until 6 AM (`min` = `360`). Thereafter `mims` values increase until 10 AM (`min` = `600`), after which they plateau at `mims` = `10`-`14` for most of the day. `mims` values then seem to decrease, most precipitously from 8 PM (`min` = `1200`), up until the end of the time period (12 PM, `min` = `1400`). Regarding differences related to `education` participants with `less than high school` appear to have the highest peaks of `mims` = `15` at 11:30 AM (`min` = `690`) for `female` participants and `mims` = `14` at 12 PM (`min` = `720`) for `male` participants. `female` participants with `less than high school` actually also have the lowest trough of `mims` less than `1` at 4 AM (`min` = `240`). Within this same `education` stratum, we see the greatest difference in lowest trough between `sex`, as `male` participants with `less than high school` having their lowest trough of `mims` = `2` also at 4 AM (`min` = `240`). Within the other two `education` categories, there does not seem to be an appreciable difference between the lowest `mims` value between `sex` categories. Speaking to `sex` differences in `mims` values overall, in the `high school equivalent` and `more than high school` stratum of `education`, `male` participants generally have lower `mims` values than `female` participants across the 24-hr time period, especially with respect to daytime observations as opposed to nighttime observations. This difference is most noticeable in the `more than high school` stratum of `education`. This is not to suggest that the pattern does not hold within the `less than high school` stratum of `education`, but the difference is simply less pronounced upon visual inspection of the smooth trends.
+
+# Problem 3: Citi Bike
+
+## 3.1. `citi` Data Wrangling
+
+
+### 3.1.1. Import, Clean, Tidy, and Merge `citi` Data
+
+
+### 3.1.2. `citi` Data Description
+
+
+## 3.2. Frequency by `year`, `month`, & `member_status`
+
+
+### 3.2.1. Tables
+
+
+### 3.2.2. Comments
+
+
+### 3.3. Frequency among Popular Stations in July 2024
+
+
+### 3.4. Effects of `week_day`, `month`, & `year` on `median_duration`
+
+
+### 3.4.1. Plot
+
+
+### 3.4.2. Comments
+
+
+### 3.5. Impact of `month`, `member_status`, & `bike_type` on `duration` Distribution
+
+
+### 3.5.1. Plot
+
+
+### 3.5.2. Comments
