@@ -37,7 +37,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ## 1.0. Load `ny_noaa` Dataset
 
-```{r}
+```{r load-ny-noaa}
 library(p8105.datasets)
 data("ny_noaa")
 ```
@@ -48,7 +48,7 @@ The `ny_noaa` dataset provides daily weather data from `r min(pull(ny_noaa, date
 
 ## 1.2. Data Cleaning
 
-```{r}
+```{r clean-noaa}
 noaa = ny_noaa |>
   separate(date, into = c("year", "month", "day"), "-") |>
   mutate(
@@ -58,20 +58,25 @@ noaa = ny_noaa |>
     )
 ```
 
-```{r}
+## 1.3. Rank `snowfall` Values by Frequency
+
+### 1.3.1. Summarize
+```{r snow-freq-rank}
 snow_freq_df = noaa |>
   group_by(snow) |>
   summarise(n_obs = n()) |>
   mutate(snow_freq_rank = min_rank(desc(n_obs)))
 ```
 
+### 1.3.2. Comments
+
 For snowfall, the most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 1), snow)`` mm occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 1), n_obs)` observations. This is due to the fact that it does not snow on most days of the year and usually only during certain months of the year. The second most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 2), snow)`` occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 2), n_obs)` observations. This is due to the fact that some weather stations only recorded precipitation data.
 
-## 1.3. Average `tmax` in January and July
+## 1.4. Average `tmax` in January and July
 
-### 1.3.1. Plot
+### 1.4.1. Plot
 
-```{r}
+```{r avg-tmax-plot}
 noaa |>
   filter(month == "01" | month == "07") |>
   group_by(id, month, year) |>
@@ -94,14 +99,14 @@ noaa |>
     labels = c("1982", "1984", "1986", "1988", "1990", "1992", "1994", "1996", "1998", "2000", "2002", "2004", "2006", "2008", "2010"))
 ```
 
-### 1.3.1. Results
+### 1.4.2. Results
 
 Visually inspecting the maximum temperature plot indicates that January is generally colder with lower `mean_tmax` temperatures and July is warmer with higher `mean_tmax` temperatures. There are noticeable outliers with one weather station reporting on average a cold July in 1988 of roughly 14 degrees Celcius `mean_tmax`, as well as one weather station reporting a particularly cold January in 1982 on average of roughly -4 degrees Celsius `mean_tmax`.
 
-## 1.4. `tmax` vs. `tmin`; Snowfall Distribution
+## 1.5. `tmax` vs. `tmin`; Snowfall Distribution
 
-### 1.4.1. Plots
-```{r}
+### 1.5.1. Plots
+```{r temp-snow-facets}
 ggp_tmax_tmin = noaa |>
   ggplot(aes(x = tmin, y = tmax)) +
   geom_hex() +
@@ -125,11 +130,11 @@ ggp_snow_ridge = noaa |>
 ggp_tmax_tmin + ggp_snow_ridge
 ```
 
-### 1.4.2. Results 
+### 1.5.2. Results 
 
-#### 1.4.2.1. `tmax` vs `tmin`
+#### 1.5.2.1. `tmax` vs `tmin`
 
-#### 1.4.2.2. Snowfall Distribution
+#### 1.5.2.2. Snowfall Distribution
 
 # Problem 2: MIMS
 
@@ -137,7 +142,7 @@ ggp_tmax_tmin + ggp_snow_ridge
 
 ### 2.1.1. Load and tidy `mims_demos` & `mims_accel`
 
-```{r}
+```{r mims-load-tidy}
 mims_demos = 
   read_csv("data/nhanes_covar.csv", 
            skip = 4,
@@ -173,7 +178,7 @@ mims_accel =
 
 ### 2.1.2 Merge `mims_demos` & `mims_accel` into `mims` 
 
-```{r}
+```{r mims-merge}
 mims = left_join(mims_demos, mims_accel, by = "seqn") |>
        select(seqn, min, mims, everything()) |>
        filter(age > 20 & !is.na(sex) & !is.na(age) & 
@@ -186,7 +191,7 @@ mims = left_join(mims_demos, mims_accel, by = "seqn") |>
 
 #### 2.2.1.1. Table
 
-```{r}
+```{r mims-freq-table}
 mims_sex_edu = mims |> 
   group_by(education, sex) |>
   summarise(count = n())
@@ -202,7 +207,7 @@ Based on the `mims_sex_edu` table, the combination of `more than high school` an
 
 #### 2.2.2.1. Density Plot
 
-```{r}
+```{r mims-age-dens}
 mims |> 
   ggplot(aes(x = age, fill = sex)) + 
   geom_density(alpha = .4, adjust = .5, color = "blue") +
@@ -222,7 +227,7 @@ Based on the **Distribution of Age for Men and Women by Education** density plot
 
 ### 2.3.1. Aggregate `mims` and Plot `total_mims` by `age`
 
-```{r}
+```{r mims-total-scatt}
 mims |>
   group_by(seqn, sex, age, education) |>
   summarize(total_mims = sum(mims)) |>
@@ -245,7 +250,7 @@ Based on the **Scatterplot of Total Activity by Age**, we can appreciate potenti
 
 ### 2.4.1. `mims` Time Course Plot
 
-```{r}
+```{r mims-time-smooth}
 mims |> 
   mutate(min = as.numeric(min)) |>
   ggplot(aes(x = min, y = mims, color = sex)) +
@@ -271,12 +276,45 @@ Based on the smooth trends in the **24-hr Activity Plot**, we can appreciate sev
 
 ## 3.1. `citi` Data Wrangling
 
-
 ### 3.1.1. Import, Clean, Tidy, and Merge `citi` Data
+```{r citi-wrangle}
+citi0120 = 
+  read_csv("data/Jan 2020 Citi.csv", na = c("NA")) |>
+  mutate(month = "jan",
+         year = "2020")
 
+citi0720 = 
+  read_csv("data/July 2020 Citi.csv", na = c("NA")) |>
+  mutate(month = "july",
+         year = "2020")
+
+citi0124 = 
+  read_csv("data/Jan 2024 Citi.csv", na = c("NA")) |>
+  mutate(month = "jan",
+         year = "2024")
+
+citi0724 = 
+  read_csv("data/July 2024 Citi.csv", na = c("NA")) |>
+  mutate(month = "july",
+         year = "2024")
+
+citi = 
+  bind_rows(citi0120, citi0720, citi0124, citi0724) |>
+  mutate(
+    bike_type = case_match(rideable_type,
+                           "classic_bike" ~ "classic", 
+                           "electric_bike" ~ "electric"),
+    bike_type = as.factor(bike_type),
+    weekday = as.factor(weekdays),
+    member_status = as.factor(member_casual),
+    month = as.factor(month),
+    year = as.factor(year)) |>
+    select(-rideable_type, -weekdays, -member_casual)
+```
 
 ### 3.1.2. `citi` Data Description
 
+`citi` contains data on rides taken on the NYC Citi Bike system in January and July of 2020 and 2024. The dataset includes information on a total of `r nrow(citi)` rides. There are `r ncol(citi)` variables in this dataset, including unique ride ID, duration of ride, names of the start and end station of the ride, type of bike used for the ride, membership status of the associated rider, and each ride's year, month and day of week.
 
 ## 3.2. Frequency by `year`, `month`, & `member_status`
 
