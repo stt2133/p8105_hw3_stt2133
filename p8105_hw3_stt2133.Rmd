@@ -211,3 +211,7 @@ mims |>
     caption = "Data from nhanes dataset")
 ```
 
+Based on the **Scatterplot of Total Activity by Age**, we can appreciate potential differencea in total activity (`total_mims`) across the `age` range of participants, according to `sex` and `education`. It would appear that total activity generally decreases as `age` of participants increase. This trend is indicated in each of the three `education` categories. This association seems to be most noticeable within the `less than high school` stratum. In only the `less than high school` stratum of `education`, `male` participants seem to have recorded higher total activity. Conversely, in the other two strata of `education`, namely `high school equivalent` and `more than high school`, `female` pariciapants generally recorded higher total activity. Across all `education` strata, it would appear that participants with `less than high school` recorded amongst the highest total activity, especially those that were younger in `age`.
+
+
+
