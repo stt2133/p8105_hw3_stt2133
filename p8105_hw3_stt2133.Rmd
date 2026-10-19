@@ -320,13 +320,23 @@ citi =
 citi |>
   group_by(year, month, member_status) |>
   summarize(rides = n()) |>
-  knitr::kable(digits = 2)
+  knitr::kable()
 ```
 
 ### 3.3.2. Comments
 Based on the frequency table, across the years and months observed, Citi Bike members took more rides than casual riders. The `member_status` category that had the combination of years and months recording the greatest frequency were also members and this occurred in `july` of `2024` with 36262 rides. Conversely, the `member_status` category that had the combination of years and months recording the lowest frequency were casual riders and this occurred in `jan` of `2020` with 984 rides. 
 
 ### 3.4. Frequency among Popular Stations in July 2024
+```{r}
+citi |>
+  filter(month == "july" & year == "2024") |>
+  group_by(start_station_name) |>
+  summarize(rides = n()) |>
+  mutate(ride_freq_rank = min_rank(desc(rides))) |>
+  filter(ride_freq_rank < 6) |>
+  select(-ride_freq_rank) |>
+  knitr::kable()
+```
 
 
 ### 3.5. Effects of `week_day`, `month`, & `year` on `median_duration`
