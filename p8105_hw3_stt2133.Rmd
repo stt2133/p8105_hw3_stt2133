@@ -127,16 +127,16 @@ The distribution of daily snowfall (excluding days with no snow) looks consisten
 
 # Problem 2: MIMS
 
-## 2.1. `mims` Data Wrangling
+## 2.1. Load, tidy, merge into `mims`
 
-### 2.1.1. Load and tidy `mims_demos` & `mims_accel`
-
-```{r mims-load-tidy}
+```{r mims-load-tidy-merge}
 mims_demos = 
   read_csv("data/nhanes_covar.csv", 
            skip = 4,
            na = c("NA")) |>
   janitor::clean_names() |>
+  filter(age >= 21) |>
+  drop_na() |>
   mutate(
     seqn = as.character(seqn),
     sex = case_match(sex, 
@@ -160,36 +160,32 @@ mims_accel =
   mutate(seqn = as.character(seqn)) |>
   pivot_longer(
     min1:min1440,
-    names_to = "min", 
+    names_to = "minute", 
     names_prefix = "min",
-    values_to = "mims")
-```
+    values_to = "mims"
+    ) |>
+  mutate(minute = as.integer(minute))
 
-### 2.1.2 Merge `mims_demos` & `mims_accel` into `mims` 
-
-```{r mims-merge}
 mims = left_join(mims_demos, mims_accel, by = "seqn") |>
-       select(seqn, min, mims, everything()) |>
-       filter(age > 20 & !is.na(sex) & !is.na(age) & 
-              !is.na(bmi) & !is.na(education))
+       select(seqn, minute, mims, everything())
 ```
 
 ## 2.2. `mims` Data Visualization 
 
 ### 2.2.1. Frequency by `sex` & `education`
 
-#### 2.2.1.1. Table
-
 ```{r mims-freq-table}
 mims |> 
-  group_by(education, sex) |>
-  summarise(count = n()) |>
-  knitr::kable(digits = 2)
+  distinct(seqn, sex, education) |>
+  count(education, sex) |>
+  pivot_wider(
+    names_from = sex,
+    values_from = n
+  ) |>
+  knitr::kable()
 ```
 
-#### 2.2.1.2. Comments
-
-Based on the frequency table, the combination of `more than high school` and `female` represents the most highest frequency in the `mims` dataset with `84960` observations, closely followed by the combination of `more than high school` and `male` with `80640` observations. The least frequent combinations of `education` and `sex` was `high school equivalent` and `female` with 33120 observations and `less than high school` and `male` with 38880 observations.
+Based on the frequency table, the largest `education` group is more than high school, with similar numbers of males and females. The less than high school `education` group is similarly fairly balanced between males and females but there is a slightly larger discrepancy. The high school equivalent `education` group is the least balanced, with noticeably more men than women.
 
 ### 2.2.2. Distribution of `age` by `sex` & `education`
 
