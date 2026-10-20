@@ -59,9 +59,8 @@ noaa = ny_noaa |>
 
 After cleaning the `ny_noaa` dataset, `year`, `month`, and `day` are separate numeric variables. Precipitation was converted from tenths of mm to mm, and maximum and minimum temperature were converted from tenths of a degree to degrees Celsius.
 
-## 1.3. Rank `snowfall` Values by Frequency
+## 1.3. Frequency of `snowfall` Values
 
-### 1.3.1. Summarize
 ```{r snow-freq-rank}
 snow_freq_df = noaa |>
   group_by(snow) |>
@@ -69,9 +68,7 @@ snow_freq_df = noaa |>
   mutate(snow_freq_rank = min_rank(desc(n_obs)))
 ```
 
-### 1.3.2. Comments
-
-For snowfall, the most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 1), snow)`` mm occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 1), n_obs)` observations. This is due to the fact that it does not snow on most days of the year and usually only during certain months of the year. The second most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 2), snow)`` occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 2), n_obs)` observations. This is due to the fact that some weather stations only recorded precipitation data.
+For snowfall, the most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 1), snow)`` mm occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 1), n_obs)` observations. This is due to the fact that it does not snow on most days of the year and usually only during certain months of the year. The second most common value of ``r pull(filter(snow_freq_df, snow_freq_rank == 2), snow)`` occurred across `r pull(filter(snow_freq_df, snow_freq_rank == 2), n_obs)` observations. This is due to the fact that some weather stations only recorded precipitation data. The next most common values are `r pull(filter(snow_freq_df, snow_freq_rank == 3), snow)`, `r pull(filter(snow_freq_df, snow_freq_rank == 4), snow)`, `r pull(filter(snow_freq_df, snow_freq_rank == 4), snow)`, and `r pull(filter(snow_freq_df, snow_freq_rank == 5), snow)` mm. These correspond to 1, 0.5, 2, and 3 inches, which suggests that many weather stations measure snowfall in inches and the values were converted to mm afterward.
 
 ## 1.4. Average `tmax` in January and July
 
