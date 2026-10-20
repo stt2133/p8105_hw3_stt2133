@@ -206,14 +206,12 @@ Based on the **Distribution of Age for Men and Women by Education** density plot
 
 ## 2.3. Total Activity
 
-### 2.3.1. Aggregate `mims` and Plot `total_mims` by `age`
-
 ```{r mims-total-scatt}
 mims |>
   group_by(seqn, sex, age, education) |>
   summarize(total_mims = sum(mims)) |>
   ggplot(aes(x = age, y = total_mims, color = sex)) +
-  geom_point() +
+  geom_point(alpha = .6) +
   geom_smooth(se = FALSE) +
   facet_grid(education ~ .) +
   labs(
@@ -223,8 +221,6 @@ mims |>
     caption = "Data from nhanes dataset")
 ```
 
-### 2.3.2. Comments
-
 Based on the **Scatterplot of Total Activity by Age**, we can appreciate potential differencea in total activity (`total_mims`) across the `age` range of participants, according to `sex` and `education`. It would appear that total activity generally decreases as `age` of participants increase. This trend is indicated in each of the three `education` categories. This association seems to be most noticeable within the `less than high school` stratum. In only the `less than high school` stratum of `education`, `male` participants seem to have recorded higher total activity. Conversely, in the other two strata of `education`, namely `high school equivalent` and `more than high school`, `female` participants generally recorded higher total activity. Across all `education` strata, it would appear that participants with `less than high school` recorded amongst the highest total activity, especially those that were younger in `age`.
 
 ## 2.4. 24-hour Activity Time Courses
@@ -233,8 +229,7 @@ Based on the **Scatterplot of Total Activity by Age**, we can appreciate potenti
 
 ```{r mims-time-smooth}
 mims |> 
-  mutate(min = as.numeric(min)) |>
-  ggplot(aes(x = min, y = mims, color = sex)) +
+  ggplot(aes(x = minute, y = mims, color = sex)) +
   geom_line(aes(group = seqn), alpha = 0.1) +
   geom_smooth(aes(group = sex), size = 1, se = FALSE) +
   facet_grid(education ~ .) +                  
@@ -243,10 +238,7 @@ mims |>
     x = "Time",
     y = "MIMS",
     color = "Sex",
-    caption = "Data from nhanes dataset") +
-  scale_x_continuous(
-    breaks = c(0,	240,	480,	720,	960,	1200,	1440), 
-    labels = c("12 AM", "4 AM",	"8 AM",	"12 PM",	"4 PM", "8 PM",	"12 AM"))
+    caption = "Data from nhanes dataset")
 ```
 
 ### 2.4.2. Patterns and Conclusions
