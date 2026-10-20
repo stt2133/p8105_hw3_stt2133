@@ -72,34 +72,28 @@ For snowfall, the most common value of ``r pull(filter(snow_freq_df, snow_freq_r
 
 ## 1.4. Average `tmax` in January and July
 
-### 1.4.1. Plot
-
 ```{r avg-tmax-plot}
 noaa |>
-  filter(month == "01" | month == "07") |>
+  filter(month == 1 | month == 7) |>
   group_by(id, month, year) |>
   summarize(mean_tmax = mean(tmax, na.rm=TRUE)) |>
   mutate(
     month = case_match(month, 
-                      "01" ~ "January", 
-                      "07" ~ "July")
+                      1 ~ "January", 
+                      7 ~ "July")
     ) |>
-  ggplot(aes(x = year, y = mean_tmax)) +
-  geom_point(alpha = 0.3) +
+  ggplot(aes(x = year, y = mean_tmax, group = id)) +
+  geom_point(alpha = 0.3, size = .8) +
+  geom_line(alpha = .1) +
   facet_grid(month ~ .) +
   labs(
-    title = "Average Maximum Temperature in January and July",
+    title = "Average Maximum Temperature in January and July, by Station",
     x = "Year",
     y = "Average maximum daily temperature (°C)",
-    caption = "Data from the ny_noaa dataset") +
-  scale_x_discrete(
-    breaks = c(1982, 1984, 1986, 1988, 1990, 1992, 1994, 1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010), 
-    labels = c("1982", "1984", "1986", "1988", "1990", "1992", "1994", "1996", "1998", "2000", "2002", "2004", "2006", "2008", "2010"))
+    caption = "Data from the ny_noaa dataset")
 ```
 
-### 1.4.2. Results
-
-Visually inspecting the maximum temperature plot indicates that January is generally colder with lower `mean_tmax` temperatures and July is warmer with higher `mean_tmax` temperatures. There are noticeable outliers with one weather station reporting on average a cold July in 1988 of roughly 14 degrees Celcius `mean_tmax`, as well as one weather station reporting a particularly cold January in 1982 on average of roughly -4 degrees Celsius `mean_tmax`.
+Visually inspecting the *Average Maximum Temperature in January and July, by Station** indicates that `January` is consistently much colder than July. Most weather station's `tmax` averages fall between about -10°C and 10°C in January and between about 20°C and 33°C in July. There is clear year-to-year structure, since average maximum temperatures of stations tend to rise and fall together. For example, January was unusually cold across most stations in 1994 and 2004 and unusually warm in 1990 and 2006. January averages also vary more between years than July averages.  There are a few noticeable outliers, including one weather station with an average July maximum of only about 14°C in 1988, and two with average January maximums of about -13°C (1982) and -12°C (2005).
 
 ## 1.5. `tmax` vs. `tmin`; Snowfall Distribution
 
