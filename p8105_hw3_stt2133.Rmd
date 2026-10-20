@@ -97,24 +97,23 @@ Visually inspecting the *Average Maximum Temperature in January and July, by Sta
 
 ## 1.5. `tmax` vs. `tmin`; Snowfall Distribution
 
-### 1.5.1. Plots
 ```{r temp-snow-facets}
 ggp_tmax_tmin = noaa |>
   ggplot(aes(x = tmin, y = tmax)) +
   geom_hex() +
   labs(
-    title = "Maximim vs. Minimum Daily Temperature",
+    title = "Daily Maximum vs. Minimum Temperature",
     x = "Minimum daily temperature (°C)",
     y = "Maximum daily temperature (°C)",
-    caption = "Data from the ny_noaa dataset") +
-  theme(legend.position = "none")
+    fill = "Number of days",) +  
+    theme(legend.text = element_text(angle = 90))
 
 ggp_snow_ridge = noaa |> 
   filter(snow > 0 & snow < 100) |>
-  ggplot(aes(x = snow, y = year)) + 
+  ggplot(aes(x = snow, y = factor(year))) + 
   geom_density_ridges(scale = 2) +
   labs(
-    title = "Annual Distribution of Daily Snowfall (0-100mm)",
+    title = "Daily Snowfall (0-100 mm) by Year",
     x = "Snowfall (mm)",
     y = "Year",
     caption = "Data from the ny_noaa dataset")
@@ -122,11 +121,9 @@ ggp_snow_ridge = noaa |>
 ggp_tmax_tmin + ggp_snow_ridge
 ```
 
-### 1.5.2. Results 
+Maximum and minimum daily temperature are strongly and positively related. The most frequent `tmax` and `tmin` combinations are in the range of about (-10°C, 0°C) to (20°C, 30°C), with `tmax` usually about 5-15°C warmer than `tmin`. There are a few outliers that seem implausible and might be a result of measurement errors. For example, there are days with `tmax` values of 60°C, and `r nrow(filter(noaa, tmin > tmax))` days have a `tmin` greater than `tmax`.
 
-#### 1.5.2.1. `tmax` vs `tmin`
-
-#### 1.5.2.2. Snowfall Distribution
+The distribution of daily snowfall (excluding days with no snow) looks consistent from year to year. In every year, most snowfall days have less than about 30 mm of `snow`, and the distributions have peaks at about 13, 25, 51, and 76 mm, which matches the measurements-by-inch and conversion to mm approach alluded to earlier. 
 
 # Problem 2: MIMS
 
