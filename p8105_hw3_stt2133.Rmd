@@ -48,11 +48,16 @@ The `ny_noaa` dataset contains daily weather data from `r min(pull(ny_noaa, date
 noaa = ny_noaa |>
   separate(date, into = c("year", "month", "day"), "-") |>
   mutate(
-    prcp = as.numeric(prcp)/10,
+    prcp = prcp/10,
     tmax = as.numeric(tmax)/10,
-    tmin = as.numeric(tmin)/10
+    tmin = as.numeric(tmin)/10,
+    year = as.numeric(year),
+    month = as.numeric(month),
+    day = as.numeric(day)
     )
 ```
+
+After cleaning the `ny_noaa` dataset, `year`, `month`, and `day` are separate numeric variables. Precipitation was converted from tenths of mm to mm, and maximum and minimum temperature were converted from tenths of a degree to degrees Celsius.
 
 ## 1.3. Rank `snowfall` Values by Frequency
 
