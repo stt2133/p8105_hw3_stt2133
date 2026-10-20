@@ -282,20 +282,20 @@ citi =
 
 ## 3.2. `citi` Data Description
 
-`citi` contains data on rides taken on the NYC Citi Bike system in January and July of 2020 and 2024. The dataset includes information on a total of `r nrow(citi)` rides. There are `r ncol(citi)` variables in this dataset, including unique ride ID, duration of ride, names of the start and end station of the ride, type of bike used for the ride, membership status of the associated rider, and each ride's year, month and day of week.
+The `citi` dataset contains a 1% sample of NYC Citi Bike rides lasting less than 4 hours in January and July of 2020 and 2024, for a total of `r nrow(citi)` rides (one row per ride) and `r ncol(citi)` variables. These include a unique ride ID (`ride_id`), the year, month, and day of the week (`weekday`) of the ride, ride duration in minutes (`duration`, ranging from `r round(min(pull(citi, duration)), 2)` to `r round(max(pull(citi, duration)), 2)` minutes), whether the rider was a Citi Bike member or a casual rider (`member_status`), the type of bike (`bike_type`, classic or electric), and the names of the start and end stations. There is little missing data. Only `r sum(is.na(pull(citi, start_station_name)))` rides are missing a start station and `r sum(is.na(pull(citi, end_station_name)))` are missing an end station.
 
 ## 3.3. Frequency by `year`, `month`, & `member_status`
-
-### 3.3.1. Tables
 ```{r rides-freq}
 citi |>
-  group_by(year, month, member_status) |>
-  summarize(rides = n()) |>
+  count(year, month, member_status) |>
+  pivot_wider(
+    names_from = member_status,
+    values_from = n
+  ) |>
   knitr::kable()
 ```
 
-### 3.3.2. Comments
-Based on the frequency table, across the years and months observed, Citi Bike members took more rides than casual riders. The `member_status` category that had the combination of years and months recording the greatest frequency were also members and this occurred in `July` of `2024` with 36262 rides. Conversely, the `member_status` category that had the combination of years and months recording the lowest frequency were casual riders and this occurred in `January` of `2020` with 984 rides. 
+Members took far more rides than casual riders in every month and year. Ridership was much higher in July than in January in both years, and it grew substantially from 2020 to 2024, with July 2024 having the most rides overall. Casual riders made up a larger share of rides in July than in January, suggesting that casual riders, such as tourists and occasional users, are more likely to ride in warm weather.
 
 ## 3.4. Frequency among Popular Stations in July 2024
 ```{r ride_freq_rank}
@@ -309,9 +309,8 @@ citi |>
   knitr::kable()
 ```
 
-## 3.5. Effects of `week_day`, `month`, & `year` on `median_duration`
-### 3.5.1. Plot
-```{r}
+## 3.5. Effects of `weekday`, `month`, & `year` on `median_duration`
+```{r median-duration}
 citi |>
   group_by(year, month, weekday) |>
   summarize(median_duration = median(duration)) |>
@@ -323,7 +322,9 @@ citi |>
     title = "Median Ride Duration by Day of the Week, Month, & Year",
     x = "Day of the Week",
     y = "Median Duration of Ride",
-    caption = "Data from NYC Citi Bike dataset")
+    color = "Month",
+    caption = "Data from NYC Citi Bike dataset") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ### 3.5.2. Comments
