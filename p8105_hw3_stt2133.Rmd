@@ -213,15 +213,16 @@ mims |>
   ggplot(aes(x = age, y = total_mims, color = sex)) +
   geom_point(alpha = .6) +
   geom_smooth(se = FALSE) +
-  facet_grid(education ~ .) +
+  facet_grid(. ~ education) +
   labs(
-    title = "Scatterplot of Total Activity by Age",
-    x = "Age",
-    y = "Total Activity",
+    title = "Total Daily Activity by Age, Sex, and Education",
+    x = "Age (years)",
+    y = "Total activity (sum of MIMS over 24 hours)",
+    color = "Sex",
     caption = "Data from nhanes dataset")
 ```
 
-Based on the **Scatterplot of Total Activity by Age**, we can appreciate potential differencea in total activity (`total_mims`) across the `age` range of participants, according to `sex` and `education`. It would appear that total activity generally decreases as `age` of participants increase. This trend is indicated in each of the three `education` categories. This association seems to be most noticeable within the `less than high school` stratum. In only the `less than high school` stratum of `education`, `male` participants seem to have recorded higher total activity. Conversely, in the other two strata of `education`, namely `high school equivalent` and `more than high school`, `female` participants generally recorded higher total activity. Across all `education` strata, it would appear that participants with `less than high school` recorded amongst the highest total activity, especially those that were younger in `age`.
+In all three `education` groups, total activity tends to decline with `age`, especially after about 60 years. This decline is steepest among participants with less than high school `education.` In that group females are slightly more active than males at younger ages, while males are more active between about ages older than 50. In the high school equivalent and more than high school `education` groups, females tend to have higher total activity than males across most of the `age` range, and the difference is largest between about ages 30 and 50 in the high school equivalent group. One man in the more than high school group has a total activity close to zero.
 
 ## 2.4. 24-hour Activity Time Courses
 
