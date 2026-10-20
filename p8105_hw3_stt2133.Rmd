@@ -362,7 +362,21 @@ The plot allows us to investigate the effects of day of the week, month, and yea
 ## 3.6. Impact of `month`, `member_status`, & `bike_type` on `duration` Distribution
 ### 3.6.1. Plot
 
-
-
+```{r}
+citi |>
+  filter(year == "2024") |>
+  ggplot(aes(x = duration, fill = member_status)) +
+  geom_density(alpha = .2, adjust = 1, color = "blue") +
+  facet_grid(month ~ bike_type) + 
+  labs(
+    title = "Distribution of Ride Duration",
+    x = "Ride Duration (min)",
+    y = "Density",
+    fill = "Member Status",
+    caption = "Data from the NYC Citi Bike dataset"
+  )
+```
 
 ### 3.6.2. Comments
+
+Based on the density plots, the most stark difference is the distributions of ride `duration` between the two categories of `member_status` among rides taken on `classic` bikes. This difference seems to be that rides taken on `classic` bikes by members are more frequently shorter than rides by casual riders. Otherwise, all 8 of the density plots appear quite right-skewed, with most `duration` values on the short end.
